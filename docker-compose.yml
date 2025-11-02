@@ -1,0 +1,8 @@
+services:
+  app:
+    build:
+      context: .dev/app
+    volumes:
+      - ./:/var/www/html
+    ports:
+     - "127.0.0.1:8080:80"

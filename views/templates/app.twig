@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Julender - {{ block('title') }}</title>
+    <link href="/meta/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/meta/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <meta charset="UTF-8">
+    {{ block('head') }}
+</head>
+<body style="overflow-y: scroll">
+<main class="container mt-5">
+    <div class="bg-light p-5 rounded">
+        {% for message in flash.get('error') %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% if isDebug %}
+            {% for message in flash.get('debug') %}
+                <div class="alert alert-info" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% for message in flash.get('success') %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {{ block('content') }}
+    </div>
+</main>
+<script src="/meta/bootstrap/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/meta/jquery/jquery.min.js" crossorigin="anonymous"></script>
+{{ block('script') }}
+</body>
+</html>
