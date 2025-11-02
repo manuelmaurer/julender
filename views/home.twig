@@ -1,0 +1,29 @@
+{% extends 'templates/app.twig' %}
+{% block title %}Home{% endblock %}
+{% block head %}{% endblock %}
+{% block script %}
+    <script>
+        function openImage(day) {
+            const dayString = day < 10 ? '0' + day : day;
+            const imgElement = document.getElementById(`img-day-${day}`);
+            const btnElement = document.getElementById(`btn-day-${day}`);
+            imgElement.src = `/image/${dayString}`;
+            imgElement.classList.remove('invisible');
+            btnElement.classList.add('invisible');
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <h2>Adventskalender</h2>
+    {% for day in 1..24 %}
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Tag {{ day }}</h5>
+                {% if data[day]['isReleased'] %}
+                    <button id="btn-day-{{ day }}" class="btn btn-success" onclick="openImage({{ day }})">Öffnen</button>
+                    <img id="img-day-{{ day }}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="" class="invisible">
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
