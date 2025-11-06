@@ -1,0 +1,23 @@
+{% extends 'templates/app.twig' %}
+{% block title %}{{ __t('Login') }}{% endblock %}
+{% block head %}{% endblock %}
+{% block script %}
+{% endblock %}
+{% block content %}
+    <div class="position-fixed z-1 w-100 h-100 mh-100 mw-100 bg-opacity-50 bg-black" style="top: 3em; left: 0;">
+        <div class="w-25 mt-5 mx-auto p-2 bg-white rounded-3">
+            {% for message in flash.get('login-error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ __t(message) }}
+                </div>
+            {% endfor %}
+            <form action="/login" method="post">
+                <div class="mb-3">
+                    <label for="password" class="form-label">{{ __t('Password') }}</label>
+                    <input type="password" id="password" name="password" placeholder="{{ __t('Password') }}" class="form-control" autofocus />
+                </div>
+                <button type="submit" class="btn btn-primary">{{ __t('Login') }}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
