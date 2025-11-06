@@ -1,6 +1,6 @@
 <?php
 
-use App\Middleware\DebugMiddleware as dbg;
+use App\Middleware\LanguageMiddleware;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Middlewares\TrailingSlash;
@@ -11,17 +11,27 @@ use Slim\Views\TwigMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->safeLoad();
-
-$containerDefs = require __DIR__ . '/container.php';
 $builder = new ContainerBuilder();
-if (dbg::isDebug()) {
-$builder->enableCompilation(__DIR__ . '/../tmp');
+$defs = [
+    'container.php', // container definitions
+    'config.php', // default configuration
+    'config.local.php' // custom configuration
+];
+// Iterate all files and add them to the container
+foreach ($defs as $def) {
+    if (!is_file(__DIR__ . '/' . $def)) {
+        continue;
+    }
+    $containerDef = require __DIR__ . '/' . $def;
+    $builder->addDefinitions($containerDef);
 }
-$builder->addDefinitions($containerDefs);
+// We can't use debug from config for this, because the container is not yet built
+if (getenv('CONTAINER_CACHE') == '1') {
+    $builder->enableCompilation(__DIR__ . '/../tmp');
+}
 $container = $builder->build();
 
+// Initialize slim application
 $app = Bridge::create($container);
 
 $app->add($container->get(SessionStartMiddleware::class));
@@ -30,14 +40,16 @@ $app->add(TwigMiddleware::create($app, $container->get(Twig::class)));
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->add($container->get(TrailingSlash::class));
+$app->add($container->get(LanguageMiddleware::class));
 
-(require __DIR__ . '/../config/routes.php')($app);
+// Register routes
+(require __DIR__ . '/routes.php')($app);
 
-if (dbg::isDebug()) {
-$app->add($container->get(Whoops::class));
+// Error handling
+if ($container->get('debug')) {
+    $app->add($container->get(Whoops::class));
 } else {
-$logErrors = boolval($_ENV['LOG_ERRORS'] ?? false);
-$app->addErrorMiddleware(false, true, $logErrors);
+    $app->addErrorMiddleware(false, true, false);
 }
 
 return $app;

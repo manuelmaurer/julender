@@ -1,4 +1,6 @@
 media/day*
+config/config.local.php
+translations/*.local.php
 
 # PHPStorm / JetBrains IDEs
 .idea/

@@ -1,19 +1,12 @@
 FROM composer:latest AS composer
 
-FROM php:8.4-apache AS target
+FROM php:8.3-apache AS target
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN a2enmod rewrite
-
-RUN apt-get -y update && apt-get install -y libicu-dev libpng-dev zlib1g-dev git libzip-dev
-
-RUN pecl install xdebug
-RUN docker-php-ext-configure intl
-RUN docker-php-ext-install gd intl zip
-RUN docker-php-ext-enable gd intl xdebug zip
 
 # Update document root to public folder
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
