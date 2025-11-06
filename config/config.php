@@ -5,6 +5,8 @@
  * Use config.local.php for local configuration
  */
 
+declare(strict_types=1);
+
 // Get environment variable with default value
 $getEnv = function (string $key, mixed $default) {
     $value = getenv($key);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Extensions\TranslationExtension;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;

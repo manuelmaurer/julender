@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Middleware\LanguageMiddleware;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
