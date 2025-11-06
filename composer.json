@@ -16,10 +16,15 @@
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^4.0",
-    "phpstan/phpstan": "^2.1"
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^12.4"
   },
   "scripts": {
     "phpcs": "phpcs --standard=phpcs.xml config public src",
-    "phpstan": "phpstan analyse config public src"
+    "phpstan": "phpstan analyse config public src",
+    "all": [
+      "@phpcs",
+      "@phpstan"
+    ]
   }
 }
