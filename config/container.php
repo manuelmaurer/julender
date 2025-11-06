@@ -1,6 +1,8 @@
 <?php
 
-use App\Middleware\DebugMiddleware as dbg;
+use App\Extensions\TranslationExtension;
+use App\Middleware\AuthenticationMiddleware;
+use App\Middleware\LanguageMiddleware;
 use DI\Container;
 use Middlewares\TrailingSlash;
 use Middlewares\Whoops;
@@ -11,9 +13,10 @@ use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extension\DebugExtension;
+use Twig\TwigFunction;
 
 return [
-    'timezone' => new DateTimeZone('Europe/Berlin'),
+    // Odan Session configuration
     SessionManagerInterface::class => function (Container $container) {
         return $container->get(SessionInterface::class);
     },
@@ -22,7 +25,7 @@ return [
     },
     PhpSession::class => function () {
         $session = new PhpSession([
-            'name' => 'csrf',
+            'name' => 'advent',
             'lifetime' => 7200,
             'save_path' => null,
             'domain' => null,
@@ -33,19 +36,30 @@ return [
         $session->start();
         return $session;
     },
+    // Twig configuration
     Twig::class => function (Container $container) {
+        $debug = $container->get('debug');
         $twig = Twig::create(__DIR__ . '/../views', [
-            'debug' => dbg::isDebug(),
-            'cache' => dbg::isDebug() ? false : __DIR__ . '/../tmp/twig_cache'
+            'debug' => $debug,
+            'cache' => $debug ? false : __DIR__ . '/../tmp/twig_cache'
         ]);
         $twig->addExtension($container->get(DebugExtension::class));
         $flash = $container->get(SessionInterface::class)->getFlash();
-        $twig->getEnvironment()->addGlobal('flash', $flash);
-        $twig->getEnvironment()->addGlobal('isDebug', dbg::isDebug());
+        $twigEnv = $twig->getEnvironment();
+        $translator = new TwigFunction('__t', $container->get(TranslationExtension::class));
+        $twigEnv->addFunction($translator);
+        $twigEnv->addGlobal('flash', $flash);
+        $twigEnv->addGlobal('isDebug', $debug);
+        $twigEnv->addGlobal('languages', $container->get('languages'));
+        $twigEnv->addGlobal('title', $container->get('title'));
         return $twig;
     },
+    // Autowired middlewares
     Whoops::class => DI\autowire(Whoops::class),
     TrailingSlash::class => DI\autowire(TrailingSlash::class),
     TwigMiddleware::class => DI\autowire(TwigMiddleware::class),
     ResponseFactory::class => DI\autowire(ResponseFactory::class),
+    AuthenticationMiddleware::class => DI\autowire(AuthenticationMiddleware::class),
+    TranslationExtension::class => DI\autowire(TranslationExtension::class),
+    LanguageMiddleware::class => DI\autowire(LanguageMiddleware::class),
 ];

@@ -6,3 +6,6 @@ services:
       - ./:/var/www/html
     ports:
      - "127.0.0.1:8080:80"
+    # Enable this to test container compilation
+    #environment:
+    #  - CONTAINER_CACHE=1
