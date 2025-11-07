@@ -41,7 +41,7 @@ class AuthenticationMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         // If no password is configured, allow access
-        if ($this->container->get('password') === null) {
+        if (!$this->container->has('password') || $this->container->get('password') === null) {
             return $handler->handle($request);
         }
         // Redirect to login if not logged in
