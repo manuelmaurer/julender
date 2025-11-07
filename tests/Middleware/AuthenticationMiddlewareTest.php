@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Middleware;
 
 use App\Middleware\AuthenticationMiddleware;
 use DI\Container;
 use Odan\Session\PhpSession;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Psr\Http\Message\ResponseInterface as Response;
 
 #[CoversClass(AuthenticationMiddleware::class)]
 final class AuthenticationMiddlewareTest extends TestCase
