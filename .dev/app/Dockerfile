@@ -1,8 +1,4 @@
-FROM composer:latest AS composer
-
-FROM php:8.3-apache AS target
-
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+FROM php:8.3-apache
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
