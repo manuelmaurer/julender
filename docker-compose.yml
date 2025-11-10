@@ -16,6 +16,7 @@ services:
     volumes:
       - ./:/var/www/html
     command: tail -f /dev/null
+    stop_grace_period: 1s
     working_dir: /var/www/html
     environment:
       - XDEBUG_MODE=coverage
