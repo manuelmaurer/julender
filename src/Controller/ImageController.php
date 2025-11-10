@@ -17,6 +17,13 @@ use Slim\Exception\HttpUnauthorizedException;
  */
 class ImageController
 {
+    private readonly string $mediaPath;
+
+    public function __construct(string $mediaPath = __DIR__ . "/../../media")
+    {
+        $this->mediaPath = rtrim($mediaPath, '/');
+    }
+
     /**
      * Get image for given day if it exists and is released
      * @param Request $request
@@ -37,12 +44,12 @@ class ImageController
         if (!$releaseDate->isReleased($dayNumber)) {
             throw new HttpUnauthorizedException($request, 'Not yet released');
         }
-        $imagePath = sprintf("%s/../../media/day%02d", __DIR__, $dayNumber);
-        $fileSize = filesize($imagePath);
-        if (!file_exists($imagePath) || $fileSize === false || $fileSize === 0) {
+        $imagePath = sprintf("%s/day%02d", $this->mediaPath, $dayNumber);
+        $fileSize = @filesize($imagePath);
+        if (!@file_exists($imagePath) || $fileSize === false || $fileSize === 0) {
             throw new HttpNotFoundException($request, 'File not found');
         }
-        $mimeType = mime_content_type($imagePath);
+        $mimeType = @mime_content_type($imagePath);
         if ($mimeType === false) {
             $mimeType = 'application/octet-stream';
         }
