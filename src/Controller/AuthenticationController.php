@@ -47,8 +47,7 @@ class AuthenticationController
     public function postLogin(Request $request, Response $response, PhpSession $session, Container $container): Response
     {
         $flash = $session->getFlash();
-        $targetPassword = $container->get('password');
-        if (empty($targetPassword)) {
+        if (!$container->has('password') || empty($targetPassword = $container->get('password'))) {
             $flash->add('login-error', 'Server error');
             return $this->redirectTo($response, '/login');
         }
@@ -57,8 +56,10 @@ class AuthenticationController
             $password = '';
         } elseif (is_array($body)) {
             $password = $body['password'] ?? '';
-        } else {
+        } elseif (is_object($body)) {
             $password = $body->{'password'} ?? '';
+        } else {
+            $password = (string) $body;
         }
         if ($password !== $targetPassword) {
             $flash->add('login-error', 'Invalid password');
