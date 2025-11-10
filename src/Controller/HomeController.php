@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Trait\ReleaseDateTrait;
+use App\Helper\ReleaseDate;
+use App\Trait\RedirectTrait;
 use DI\Container;
+use DI\DependencyException;
+use DI\NotFoundException;
 use Odan\Session\PhpSession;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Exception\HttpInternalServerErrorException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -18,50 +24,44 @@ use Twig\Error\SyntaxError;
  */
 class HomeController
 {
-    use ReleaseDateTrait;
+    use RedirectTrait;
 
     /**
-     * Calculate release dates for all 24 days and render home page
+     * Calculate release dates for all 24 days and render the home page
      * @param Response $response
-     * @param Container $container
      * @param Twig $twig
+     * @param ReleaseDate $releaseDate
      * @return Response
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function home(Response $response, Container $container, Twig $twig): Response
+    public function home(Response $response, Twig $twig, ReleaseDate $releaseDate): Response
     {
-        $data = array_reduce(range(1, 24), function ($carry, $item) use ($container) {
-            $carry[$item] = [
-                'ts' => $this->getReleaseDate($container, $item),
-                'isReleased' => $this->isReleased($container, $item),
-            ];
-            return $carry;
-        }, []);
-        return $twig->render($response, 'home.twig', ['data' => $data]);
+        return $twig->render($response, 'home.twig', ['data' => $releaseDate->getAllReleaseDates()]);
     }
 
     /**
-     * Switch language and redirect to home page
+     * Switch language and redirect to the home page
+     * @param Request $request
      * @param Response $response
      * @param Container $container
      * @param PhpSession $session
      * @param string $language
      * @return Response
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws NotFoundException
      */
-    public function language(Response $response, Container $container, PhpSession $session, string $language): Response
+    public function language(Request $request, Response $response, Container $container, PhpSession $session, string $language): Response
     {
         $languages = $container->get('languages');
-        if (empty($languages)) {
-            throw new \Exception('Invalid configuration');
+        if (empty($languages) || !is_array($languages)) {
+            throw new HttpInternalServerErrorException($request, 'Invalid configuration');
         }
         if (!in_array($language, $languages)) {
-            throw new \Exception('Invalid language');
+            throw new HttpNotFoundException($request, 'Invalid language');
         }
         $session->set('language', $language);
-        return $response->withStatus(302)->withHeader('Location', '/');
+        return $this->redirectTo($response, '/');
     }
 }

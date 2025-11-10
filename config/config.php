@@ -20,4 +20,5 @@ return [
     'adventMonth' => $getEnv('JUL_ADVENT_MONTH', 12),
     'password' => $getEnv('JUL_PASSWORD', null),
     'debug' => $getEnv('JUL_DEBUG', false),
+    'dateFormat' => 'Y-m-d'
 ];
