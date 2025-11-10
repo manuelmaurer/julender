@@ -46,7 +46,6 @@ class ImageControllerTest extends TestCase
      */
     public static function validFileDataProvider(): array
     {
-        # TODO: Add test that returns false on mime_content_type
         return [
             'png' => [01, 'image/png', 1233],
             'jpg' => [02, 'image/gif', 1282],

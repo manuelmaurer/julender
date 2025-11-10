@@ -6,10 +6,10 @@ namespace App\Controller;
 
 use App\Helper\ReleaseDate;
 use App\Trait\RedirectTrait;
-use DI\Container;
 use DI\DependencyException;
 use DI\NotFoundException;
-use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpInternalServerErrorException;
@@ -45,17 +45,16 @@ class HomeController
      * Switch language and redirect to the home page
      * @param Request $request
      * @param Response $response
-     * @param Container $container
-     * @param PhpSession $session
+     * @param ContainerInterface $container
+     * @param SessionInterface $session
      * @param string $language
      * @return Response
      * @throws DependencyException
      * @throws NotFoundException
      */
-    public function language(Request $request, Response $response, Container $container, PhpSession $session, string $language): Response
+    public function language(Request $request, Response $response, ContainerInterface $container, SessionInterface $session, string $language): Response
     {
-        $languages = $container->get('languages');
-        if (empty($languages) || !is_array($languages)) {
+        if (!$container->has('languages') || empty($languages = $container->get('languages')) || !is_array($languages)) {
             throw new HttpInternalServerErrorException($request, 'Invalid configuration');
         }
         if (!in_array($language, $languages)) {
