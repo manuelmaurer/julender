@@ -28,7 +28,7 @@
   "scripts": {
     "phpcs": "phpcs --standard=phpcs.xml config public src tests",
     "phpstan": "phpstan analyse config public src tests",
-    "phpunit": "phpunit -d memory_limit=-1 -c phpunit.xml",
+    "phpunit": "phpunit -c phpunit.xml",
     "all": [
       "@phpcs",
       "@phpstan",
