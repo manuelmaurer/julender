@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Extensions;
 
-use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
 
 /**
  * Translation extension for Twig
  */
 class TranslationExtension
 {
-    private PhpSession $session;
+    private SessionInterface $session;
     private string $translationPath;
 
     /**
-     * @param PhpSession $session The session is required to determine the current language
+     * @param SessionInterface $session The session is required to determine the current language
      */
-    public function __construct(PhpSession $session, string $translationPath = __DIR__ . "/../../translations")
+    public function __construct(SessionInterface $session, string $translationPath = __DIR__ . "/../../translations")
     {
         $this->session = $session;
         $this->translationPath = rtrim($translationPath, '/');

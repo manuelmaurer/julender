@@ -6,6 +6,8 @@ namespace App\Middleware;
 
 use DI\Container;
 use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -15,14 +17,14 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
  */
 class LanguageMiddleware
 {
-    private Container $container;
-    private PhpSession $session;
+    private ContainerInterface $container;
+    private SessionInterface $session;
 
     /**
-     * @param Container $container Required to get the active languages
-     * @param PhpSession $session Required to get and set the selected language in session
+     * @param ContainerInterface $container Required to get the active languages
+     * @param SessionInterface $session Required to get and set the selected language in session
      */
-    public function __construct(Container $container, PhpSession $session)
+    public function __construct(ContainerInterface $container, SessionInterface $session)
     {
         $this->container = $container;
         $this->session = $session;

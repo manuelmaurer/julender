@@ -6,18 +6,18 @@ namespace App\Helper;
 
 use DateInterval;
 use DateTimeImmutable;
-use DI\Container;
 use DI\DependencyException;
 use DI\NotFoundException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class to calculate release dates
  */
 class ReleaseDate
 {
-    private Container $container;
+    private ContainerInterface $container;
 
-    public function __construct(Container $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }

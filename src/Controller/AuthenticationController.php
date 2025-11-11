@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Trait\RedirectTrait;
-use DI\Container;
-use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -38,13 +38,13 @@ class AuthenticationController
      * - Save error message in flash and redirect to login page on error
      * @param Request $request
      * @param Response $response
-     * @param PhpSession $session
-     * @param Container $container
+     * @param SessionInterface $session
+     * @param ContainerInterface $container
      * @return Response
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public function postLogin(Request $request, Response $response, PhpSession $session, Container $container): Response
+    public function postLogin(Request $request, Response $response, SessionInterface $session, ContainerInterface $container): Response
     {
         $flash = $session->getFlash();
         if (!$container->has('password') || empty($targetPassword = $container->get('password'))) {
