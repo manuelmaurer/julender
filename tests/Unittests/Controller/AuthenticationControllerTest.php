@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace App\Tests\Unittests\Controller;
 
 use App\Controller\AuthenticationController;
 use DI\Container;
@@ -10,8 +10,8 @@ use Odan\Session\PhpSession;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Slim\Views\Twig;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\Twig;
 
 #[CoversClass(AuthenticationController::class)]
 class AuthenticationControllerTest extends TestCase

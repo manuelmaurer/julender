@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace App\Tests\Unittests\Controller;
 
 use App\Controller\HomeController;
 use App\Helper\ReleaseDate;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Extensions;
+namespace App\Tests\Unittests\Extensions;
 
 use App\Extensions\TranslationExtension;
 use Odan\Session\PhpSession;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(TranslationExtension::class)]
 final class TranslationExtensionTest extends TestCase
 {
-    private string $translationPath = __DIR__ . '/../assets/translations';
+    private string $translationPath = __DIR__ . '/../../assets/translations';
 
     /**
      * @return array<string, array<string>>

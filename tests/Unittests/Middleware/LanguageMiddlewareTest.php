@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Middleware;
+namespace App\Tests\Unittests\Middleware;
 
 use App\Middleware\LanguageMiddleware;
 use DI\Container;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace App\Tests\Unittests\Controller;
 
 use App\Controller\ImageController;
 use App\Helper\ReleaseDate;
@@ -17,7 +17,7 @@ use Slim\Exception\HttpUnauthorizedException;
 #[CoversClass(ImageController::class)]
 class ImageControllerTest extends TestCase
 {
-    private string $mediaPath = __DIR__ . '/../assets/media';
+    private string $mediaPath = __DIR__ . '/../../assets/media';
     /**
      * @return array<string, array<int>>
      */

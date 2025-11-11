@@ -28,7 +28,7 @@
   "scripts": {
     "phpcs": "phpcs --standard=phpcs.xml config public src tests",
     "phpstan": "phpstan analyse config public src tests",
-    "phpunit": "phpunit -c phpunit.xml",
+    "phpunit": "phpunit -c phpunit.xml --testsuite unit",
     "all": [
       "@phpcs",
       "@phpstan",
