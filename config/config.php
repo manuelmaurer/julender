@@ -5,6 +5,8 @@
  * Use config.local.php for local configuration
  */
 
+declare(strict_types=1);
+
 // Get environment variable with default value
 $getEnv = function (string $key, mixed $default) {
     $value = getenv($key);
@@ -18,4 +20,5 @@ return [
     'adventMonth' => $getEnv('JUL_ADVENT_MONTH', 12),
     'password' => $getEnv('JUL_PASSWORD', null),
     'debug' => $getEnv('JUL_DEBUG', false),
+    'dateFormat' => 'Y-m-d'
 ];

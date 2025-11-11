@@ -9,3 +9,14 @@ services:
     # Enable this to test container compilation
     #environment:
     #  - CONTAINER_CACHE=1
+
+  cli:
+    build:
+      context: .dev/cli
+    volumes:
+      - ./:/var/www/html
+    command: tail -f /dev/null
+    stop_grace_period: 1s
+    working_dir: /var/www/html
+    environment:
+      - XDEBUG_MODE=coverage

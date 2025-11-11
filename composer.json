@@ -7,19 +7,32 @@
     "middlewares/whoops": "^2.1",
     "slim/twig-view": "^3.4",
     "middlewares/trailing-slash": "^2.1",
-    "odan/session": "^6.4"
+    "odan/session": "^6.4",
+    "ext-fileinfo": "*"
   },
   "autoload": {
     "psr-4": {
       "App\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
   "require-dev": {
     "squizlabs/php_codesniffer": "^4.0",
-    "phpstan/phpstan": "^2.1"
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^12.4"
   },
   "scripts": {
-    "phpcs": "phpcs --standard=phpcs.xml config public src",
-    "phpstan": "phpstan analyse config public src"
+    "phpcs": "phpcs --standard=phpcs.xml config public src tests",
+    "phpstan": "phpstan analyse config public src tests",
+    "phpunit": "phpunit -c phpunit.xml --testsuite unit",
+    "all": [
+      "@phpcs",
+      "@phpstan",
+      "@phpunit"
+    ]
   }
 }

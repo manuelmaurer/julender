@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Middleware;
 
 use App\Trait\RedirectTrait;
-use DI\Container;
-use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,14 +18,14 @@ class AuthenticationMiddleware
 {
     use RedirectTrait;
 
-    private Container $container;
-    private PhpSession $session;
+    private ContainerInterface $container;
+    private SessionInterface $session;
 
     /**
-     * @param Container $container Required to get the password
-     * @param PhpSession $session Required to check if the user is logged in
+     * @param ContainerInterface $container Required to get the password
+     * @param SessionInterface $session Required to check if the user is logged in
      */
-    public function __construct(Container $container, PhpSession $session)
+    public function __construct(ContainerInterface $container, SessionInterface $session)
     {
         $this->container = $container;
         $this->session = $session;
@@ -39,7 +41,7 @@ class AuthenticationMiddleware
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
         // If no password is configured, allow access
-        if ($this->container->get('password') === null) {
+        if (!$this->container->has('password') || $this->container->get('password') === null) {
             return $handler->handle($request);
         }
         // Redirect to login if not logged in

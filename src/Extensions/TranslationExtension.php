@@ -1,22 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Extensions;
 
-use Odan\Session\PhpSession;
+use Odan\Session\SessionInterface;
 
 /**
  * Translation extension for Twig
  */
 class TranslationExtension
 {
-    private PhpSession $session;
+    private SessionInterface $session;
+    private string $translationPath;
 
     /**
-     * @param PhpSession $session The session is required to determine the current language
+     * @param SessionInterface $session The session is required to determine the current language
      */
-    public function __construct(PhpSession $session)
+    public function __construct(SessionInterface $session, string $translationPath = __DIR__ . "/../../translations")
     {
         $this->session = $session;
+        $this->translationPath = rtrim($translationPath, '/');
     }
 
     /**
@@ -30,12 +34,12 @@ class TranslationExtension
         if (empty($language)) {
             $language = 'en';
         }
-        if (!file_exists(__DIR__ . "/../../translations/$language.php")) {
+        if (!file_exists("$this->translationPath/$language.php")) {
             return $text;
         }
-        $translation = include __DIR__ . "/../../translations/$language.php";
-        if (file_exists(__DIR__ . "/../../translations/$language.local.php")) {
-            $localTranslation = include __DIR__ . "/../../translations/$language.local.php";
+        $translation = include "$this->translationPath/$language.php";
+        if (file_exists("$this->translationPath/$language.local.php")) {
+            $localTranslation = include "$this->translationPath/$language.local.php";
             $translation = array_merge($translation, $localTranslation);
         }
         if (isset($translation[$text])) {
