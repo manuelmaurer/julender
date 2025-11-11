@@ -1,0 +1,29 @@
+name: ci.yml
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.3, 8.4]
+        test: [phpcs, phpstan, phpunit]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - name: Install dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: "${{ matrix.php }}"
+          dev: true
+          php_extensions: fileinfo
+      - name: Run Test ${{ matrix.test }}
+        run: composer run ${{ matrix.test }}
