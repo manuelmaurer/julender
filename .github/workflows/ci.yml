@@ -23,7 +23,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: "${{ matrix.php }}"
-          dev: true
+          dev: yes
           php_extensions: fileinfo
       - name: Run Test ${{ matrix.test }}
         run: composer run ${{ matrix.test }}
