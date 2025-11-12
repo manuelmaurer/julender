@@ -1,6 +1,11 @@
 # Julender
 
+![Code Coverage on PHP 8.3](https://gist.githubusercontent.com/manuelmaurer/803f34206bacd4ff0fd78c2e7a820226/raw/5bf8ed05a50b8f3973385b7f0f9003826e75051d/ci-php8.3.svg)
+![Code Coverage on PHP 8.4](https://gist.githubusercontent.com/manuelmaurer/dd8853a6f8af0b6b2e88ab392ba359b2/raw/0c4c34b6b374d594d30ccecd99b25f8b98f045de/ci-php8.4.svg)
+
+
 PHP Advent Calendar based on slim4
+
 
 ## Installation
 

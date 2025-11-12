@@ -5,13 +5,17 @@ on:
     branches:
       - main
 
+env:
+  GIST_MAP: '{"8.3": "803f34206bacd4ff0fd78c2e7a820226", "8.4": "dd8853a6f8af0b6b2e88ab392ba359b2"}'
+
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [8.3, 8.4]
         test: [phpcs, phpstan, phpunit]
+        php: [8.3, 8.4]
+
     env:
       XDEBUG_MODE: coverage
     steps:
@@ -26,6 +30,23 @@ jobs:
         with:
           php_version: "${{ matrix.php }}"
           dev: yes
-          php_extensions: fileinfo
+          php_extensions: fileinfo xdebug
       - name: Run Test ${{ matrix.test }}
         run: composer run ${{ matrix.test }}
+        env:
+          XDEBUG_MODE: coverage
+      - name: Parse coverage
+        if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
+        run: |
+          echo "COVERAGE=$(php coverage.php)" >> $GITHUB_ENV
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ fromJson(env.GIST_MAP)[matrix.php] }}
+          filename: "ci-php${{ matrix.php }}.svg"
+          label: "PHP ${{ matrix.php }}"
+          message: "${{ env.COVERAGE }}"
+          minColorRange: 50
+          maxColorRange: 90
