@@ -23,15 +23,18 @@
   "require-dev": {
     "squizlabs/php_codesniffer": "^4.0",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^12.4"
+    "phpunit/phpunit": "^12.4",
+    "povils/phpmnd": "^3.6"
   },
   "scripts": {
     "phpcs": "phpcs --standard=phpcs.xml config public src tests",
     "phpstan": "phpstan analyse config public src tests",
+    "phpmnd": "phpmnd src tests",
     "phpunit": "phpunit -c phpunit.xml --testsuite unit",
     "all": [
       "@phpcs",
       "@phpstan",
+      "@phpmnd",
       "@phpunit"
     ]
   }

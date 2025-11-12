@@ -23,7 +23,8 @@ final class ReleaseDateTest extends TestCase
      */
     public static function releaseDateDataProvider(): array
     {
-        return array_reduce(range(1, 24), function ($carry, $day) {
+        $range = range(ReleaseDate::RELEASE_DAY_START, ReleaseDate::RELEASE_DAY_END);
+        return array_reduce($range, function ($carry, $day) {
             $carry["Day $day"] = [$day];
             return $carry;
         }, []);
@@ -84,14 +85,14 @@ final class ReleaseDateTest extends TestCase
             ->method('get')
             ->willReturnCallback(function ($parameter) use ($invokeAssertion, $format) {
                 $tz = new DateTimeZone('Europe/Berlin');
-                if ($invokeAssertion->numberOfInvocations() === 1) {
+                if ($invokeAssertion->numberOfInvocations() === intval(1)) {
                     $this->assertEquals('timezone', $parameter);
                     return $tz;
-                } elseif ($invokeAssertion->numberOfInvocations() === 2) {
+                } elseif ($invokeAssertion->numberOfInvocations() === intval(2)) {
                     $this->assertEquals('adventMonth', $parameter);
-                    return 12;
+                    return intval(12);
                 }
-                if ($format !== null && $invokeAssertion->numberOfInvocations() === 3) {
+                if ($format !== null && $invokeAssertion->numberOfInvocations() === intval(3)) {
                     $this->assertEquals('dateFormat', $parameter);
                     return $format;
                 }
@@ -113,7 +114,7 @@ final class ReleaseDateTest extends TestCase
     private function validateBasicArray(array $data): void
     {
         $this->assertCount(24, $data);
-        for ($day = 1; $day <= 24; $day++) {
+        for ($day = ReleaseDate::RELEASE_DAY_START; $day <= ReleaseDate::RELEASE_DAY_END; $day++) {
             $this->assertArrayHasKey($day, $data);
             $this->assertArrayHasKey('ts', $data[$day]);
             $this->assertInstanceOf(\DateTimeImmutable::class, $data[$day]['ts']);
@@ -159,7 +160,7 @@ final class ReleaseDateTest extends TestCase
         $dut = new ReleaseDate($containerMock);
         $data = $dut->getAllReleaseDates($ts);
         $this->validateBasicArray($data);
-        for ($day = 1; $day <= 24; $day++) {
+        for ($day = ReleaseDate::RELEASE_DAY_START; $day <= ReleaseDate::RELEASE_DAY_END; $day++) {
             $this->assertEquals($expectedResult, $data[$day]['isReleased']);
         }
     }
@@ -195,7 +196,7 @@ final class ReleaseDateTest extends TestCase
         $dut = new ReleaseDate($containerMock);
         $data = $dut->getAllReleaseDates('2025-12-01 12:00:00');
         $this->validateBasicArray($data);
-        for ($day = 1; $day <= 24; $day++) {
+        for ($day = ReleaseDate::RELEASE_DAY_START; $day <= ReleaseDate::RELEASE_DAY_END; $day++) {
             $this->assertEquals((new DateTimeImmutable("2025-12-$day 00:00:00"))->format($format), $data[$day]['tsString']);
         }
     }
