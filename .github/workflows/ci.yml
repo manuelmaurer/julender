@@ -36,11 +36,11 @@ jobs:
         env:
           XDEBUG_MODE: coverage
       - name: Parse coverage
-        if: ${{ matrix.test == 'phpunit' }}
+        if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
         run: |
           echo "COVERAGE=$(php coverage.php)" >> $GITHUB_ENV
       - name: Upload coverage to Codecov
-        if: ${{ matrix.test == 'phpunit' }}
+        if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
