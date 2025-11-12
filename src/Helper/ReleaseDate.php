@@ -15,6 +15,8 @@ use Psr\Container\ContainerInterface;
  */
 class ReleaseDate
 {
+    public const int RELEASE_DAY_START = 1;
+    public const int RELEASE_DAY_END = 24;
     private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)

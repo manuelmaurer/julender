@@ -38,7 +38,7 @@ class ImageController
     public function get(Request $request, Response $response, ReleaseDate $releaseDate, string $day): Response
     {
         $dayNumber = intval($day);
-        if ($dayNumber < 1 || $dayNumber > 24) {
+        if ($dayNumber < ReleaseDate::RELEASE_DAY_START || $dayNumber > ReleaseDate::RELEASE_DAY_END) {
             throw new HttpNotFoundException($request, 'Invalid day');
         }
         if (!$releaseDate->isReleased($dayNumber)) {
