@@ -47,6 +47,6 @@ jobs:
           gistID: ${{ fromJson(env.GIST_MAP)[matrix.php] }}
           filename: "ci-php${{ matrix.php }}.svg"
           label: "PHP ${{ matrix.php }}"
-          message: "${{ env.COVERAGE }}%"
+          message: "${{ env.COVERAGE }}"
           minColorRange: 50
           maxColorRange: 90
