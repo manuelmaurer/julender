@@ -35,6 +35,10 @@ jobs:
         run: composer run ${{ matrix.test }}
         env:
           XDEBUG_MODE: coverage
+      - name: Parse coverage
+        if: ${{ matrix.test == 'phpunit' }}
+        run: |
+          echo "COVERAGE=$(php coverage.php)" >> $GITHUB_ENV
       - name: Upload coverage to Codecov
         if: ${{ matrix.test == 'phpunit' }}
         uses: schneegans/dynamic-badges-action@v1.7.0
@@ -43,5 +47,6 @@ jobs:
           gistID: ${{ fromJson(env.GIST_MAP)[matrix.php] }}
           filename: "ci-php${{ matrix.php }}.svg"
           label: "PHP ${{ matrix.php }}"
-          message: "99.0%"
-          color: orange
+          message: "${{ env.COVERAGE }}%"
+          minColorRange: 50
+          maxColorRange: 90
