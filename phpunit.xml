@@ -33,6 +33,7 @@
               disableCodeCoverageIgnore="true">
         <report>
             <html outputDirectory=".phpunit.cache/html-coverage" lowUpperBound="50" highLowerBound="90"/>
+            <text outputFile=".phpunit.cache/coverage.txt" showUncoveredFiles="false" showOnlySummary="true"/>
         </report>
     </coverage>
 </phpunit>
