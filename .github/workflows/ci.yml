@@ -5,17 +5,16 @@ on:
     branches:
       - main
 
+env:
+  GIST_MAP: '{"8.3": "803f34206bacd4ff0fd78c2e7a820226", "8.4": "dd8853a6f8af0b6b2e88ab392ba359b2"}'
+
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         test: [phpcs, phpstan, phpunit]
-        include:
-          - php: 8.3
-            gist: dd8853a6f8af0b6b2e88ab392ba359b2
-          - php: 8.4
-            gist: dd8853a6f8af0b6b2e88ab392ba359b2
+        php: [8.3, 8.4]
 
     env:
       XDEBUG_MODE: coverage
@@ -41,7 +40,7 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ matrix.gist }}
+          gistID: ${{ fromJson(env.GIST_MAP)[matrix.php] }}
           filename: "ci-php${{ matrix.php }}.svg"
           label: "PHP ${{ matrix.php }}"
           message: "99.0%"
