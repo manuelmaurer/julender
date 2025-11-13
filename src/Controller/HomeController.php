@@ -22,7 +22,7 @@ use Twig\Error\SyntaxError;
 /**
  * This Controller handles the home page and language switcher
  */
-class HomeController
+readonly class HomeController
 {
     use RedirectTrait;
 
@@ -31,14 +31,22 @@ class HomeController
      * @param Response $response
      * @param Twig $twig
      * @param ReleaseDate $releaseDate
+     * @param SessionInterface $session
      * @return Response
+     * @throws DependencyException
      * @throws LoaderError
+     * @throws NotFoundException
      * @throws RuntimeError
      * @throws SyntaxError
+     * @throws \DateMalformedStringException
      */
-    public function home(Response $response, Twig $twig, ReleaseDate $releaseDate): Response
+    public function home(Response $response, Twig $twig, ReleaseDate $releaseDate, SessionInterface $session): Response
     {
-        return $twig->render($response, 'home.twig', ['data' => $releaseDate->getAllReleaseDates()]);
+        $payload = [
+            'data' => $releaseDate->getAllReleaseDates(),
+            'opened' => $session->get('images', []),
+        ];
+        return $twig->render($response, 'home.twig', $payload);
     }
 
     /**

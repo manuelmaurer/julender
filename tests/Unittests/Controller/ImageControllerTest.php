@@ -6,6 +6,8 @@ namespace App\Tests\Unittests\Controller;
 
 use App\Controller\ImageController;
 use App\Helper\ReleaseDate;
+use Odan\Session\MemorySession;
+use Odan\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -68,10 +70,11 @@ class ImageControllerTest extends TestCase
         $requestMock = $this->createMock(Request::class);
         $responseMock = $this->createMock(Response::class);
         $rdMock = $this->createMock(ReleaseDate::class);
+        $sessionMock = $this->createMock(SessionInterface::class);
         $dut = new ImageController();
         $this->expectException(HttpNotFoundException::class);
         $this->expectExceptionMessage('Invalid day');
-        $dut->get($requestMock, $responseMock, $rdMock, strval($day));
+        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
     }
 
     /**
@@ -94,10 +97,11 @@ class ImageControllerTest extends TestCase
             ->method('isReleased')
             ->with($this->equalTo(11))
             ->willReturn(false);
+        $sessionMock = $this->createMock(SessionInterface::class);
         $dut = new ImageController();
         $this->expectException(HttpUnauthorizedException::class);
         $this->expectExceptionMessage('Not yet released');
-        $dut->get($requestMock, $responseMock, $rdMock, '11');
+        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, '11');
     }
 
     /**
@@ -122,10 +126,11 @@ class ImageControllerTest extends TestCase
             ->method('isReleased')
             ->with($this->equalTo($day))
             ->willReturn(true);
+        $sessionMock = $this->createMock(SessionInterface::class);
         $dut = new ImageController($this->mediaPath);
         $this->expectException(HttpNotFoundException::class);
         $this->expectExceptionMessage('File not found');
-        $dut->get($requestMock, $responseMock, $rdMock, strval($day));
+        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
     }
 
     /**
@@ -152,9 +157,13 @@ class ImageControllerTest extends TestCase
             ->method('isReleased')
             ->with($this->equalTo($day))
             ->willReturn(true);
+        $session = new MemorySession();
         $dut = new ImageController($this->mediaPath);
-        $result = $dut->get($requestMock, $response, $rdMock, strval($day));
+        $result = $dut->get($requestMock, $response, $rdMock, $session, strval($day));
         $this->assertEquals($expectedMime, $result->getHeaderLine('Content-Type'));
         $this->assertEquals($expectedSize, $result->getHeaderLine('Content-Length'));
+        $this->assertIsArray($session->get('images'));
+        $this->assertArrayHasKey($day, $session->get('images'));
+        $this->assertTrue($session->get('images')[$day]);
     }
 }

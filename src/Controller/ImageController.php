@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Helper\ReleaseDate;
 use DI\DependencyException;
 use DI\NotFoundException;
+use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\HttpNotFoundException;
@@ -15,9 +16,9 @@ use Slim\Exception\HttpUnauthorizedException;
 /**
  * This Controller handles the image endpoint
  */
-class ImageController
+readonly class ImageController
 {
-    private readonly string $mediaPath;
+    private string $mediaPath;
 
     public function __construct(string $mediaPath = __DIR__ . "/../../media")
     {
@@ -29,13 +30,14 @@ class ImageController
      * @param Request $request
      * @param Response $response
      * @param ReleaseDate $releaseDate
+     * @param SessionInterface $session
      * @param string $day
      * @return Response
      * @throws DependencyException
      * @throws NotFoundException
      * @throws \DateMalformedStringException
      */
-    public function get(Request $request, Response $response, ReleaseDate $releaseDate, string $day): Response
+    public function get(Request $request, Response $response, ReleaseDate $releaseDate, SessionInterface $session, string $day): Response
     {
         $dayNumber = intval($day);
         if ($dayNumber < ReleaseDate::RELEASE_DAY_START || $dayNumber > ReleaseDate::RELEASE_DAY_END) {
@@ -53,6 +55,9 @@ class ImageController
         if ($mimeType === false) {
             $mimeType = 'application/octet-stream';
         }
+        $opened = $session->get('images', []);
+        $opened[$dayNumber] = true;
+        $session->set('images', $opened);
         $response = $response
             ->withHeader('Content-Type', $mimeType)
             ->withHeader('Content-Length', strval($fileSize));

@@ -14,7 +14,7 @@ use Slim\Views\Twig;
 /**
  * This Controller handles the login functionality
  */
-class AuthenticationController
+readonly class AuthenticationController
 {
     use RedirectTrait;
 
