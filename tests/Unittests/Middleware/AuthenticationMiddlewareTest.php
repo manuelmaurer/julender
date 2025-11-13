@@ -128,6 +128,45 @@ final class AuthenticationMiddlewareTest extends TestCase
     }
 
     /**
+     * Test that the middleware redirects to the login page when the password has changed
+     * @return void
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
+    public function testEnabledAuthPasswordChanged(): void
+    {
+        $containerMock = $this->getMockBuilder(Container::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['has', 'get'])
+            ->getMock();
+        $containerMock
+            ->expects($this->once())
+            ->method('has')
+            ->willReturn(true);
+        $containerMock
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn('phpunit');
+
+        $session = new MemorySession();
+        $session->set('loggedIn', true);
+        $session->set('passwordHash', password_hash('old_phpunit', PASSWORD_DEFAULT));
+
+        $requestMock = $this->getMockBuilder(Request::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $handlerMock = $this->getMockBuilder(RequestHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dut = new AuthenticationMiddleware($containerMock, $session);
+        $response = $dut($requestMock, $handlerMock);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+    }
+
+    /**
      * Test that the middleware allows access when authentication is enabled and the user is authorized.
      * @return void
      * @throws \DI\DependencyException
@@ -150,6 +189,7 @@ final class AuthenticationMiddlewareTest extends TestCase
 
         $session = new MemorySession();
         $session->set('loggedIn', true);
+        $session->set('passwordHash', password_hash('phpunit', PASSWORD_DEFAULT));
 
         $this->testAuthWithReturn($containerMock, $session);
     }

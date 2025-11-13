@@ -169,5 +169,7 @@ class AuthenticationControllerTest extends TestCase
         $this->assertEquals('/', $result->getHeaderLine('Location'));
         $this->assertTrue($session->has('loggedIn'));
         $this->assertTrue($session->get('loggedIn'));
+        $this->assertTrue($session->has('passwordHash'));
+        $this->assertTrue(password_verify('phpunit', $session->get('passwordHash')));
     }
 }
