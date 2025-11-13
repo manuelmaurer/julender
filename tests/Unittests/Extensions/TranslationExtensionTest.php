@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unittests\Extensions;
 
 use App\Extensions\TranslationExtension;
-use Odan\Session\PhpSession;
+use Odan\Session\MemorySession;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +45,7 @@ final class TranslationExtensionTest extends TestCase
      */
     private function getTranslator(string $language): TranslationExtension
     {
-        $session = new PhpSession();
+        $session = new MemorySession();
         $session->set('language', $language);
 
         return new TranslationExtension($session, $this->translationPath);

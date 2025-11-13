@@ -7,6 +7,7 @@ use App\Controller\HomeController;
 use App\Controller\ImageController;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;
+use Odan\Session\Middleware\SessionStartMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -18,11 +19,13 @@ return function (App $app) {
             ->setName('get.home');
         $group->get('login', [AuthenticationController::class, 'getLogin'])->setName('get.login');
         $group->post('login', [AuthenticationController::class, 'postLogin'])->setName('post.login');
-    })->add(LanguageMiddleware::class);
+    })
+        ->add(LanguageMiddleware::class)
+        ->add(SessionStartMiddleware::class);
 
     // Language switcher
-    $app->get('/language/{language}', [HomeController::class, 'language'])
-        ->setName('get.language');
+    $app->get('/language/{language}', [HomeController::class, 'language'])->setName('get.language')
+        ->add(SessionStartMiddleware::class);
 
     // Images
     $app->get('/image/{day}', [ImageController::class, 'get'])->setName('get.image');

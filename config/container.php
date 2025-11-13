@@ -8,6 +8,7 @@ use App\Middleware\LanguageMiddleware;
 use DI\Container;
 use Middlewares\TrailingSlash;
 use Middlewares\Whoops;
+use Odan\Session\Middleware\SessionStartMiddleware;
 use Odan\Session\PhpSession;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
@@ -28,14 +29,13 @@ return [
     PhpSession::class => function () {
         $session = new PhpSession([
             'name' => 'advent',
-            'lifetime' => 7200,
+            'lifetime' => 2 * 30 * 24 * 60 * 60, // 2 months
             'save_path' => null,
             'domain' => null,
             'secure' => false,
             'httponly' => true,
             'cache_limiter' => 'nocache',
         ]);
-        $session->start();
         return $session;
     },
     // Twig configuration
@@ -64,4 +64,5 @@ return [
     AuthenticationMiddleware::class => DI\autowire(AuthenticationMiddleware::class),
     TranslationExtension::class => DI\autowire(TranslationExtension::class),
     LanguageMiddleware::class => DI\autowire(LanguageMiddleware::class),
+    SessionStartMiddleware::class => DI\autowire(SessionStartMiddleware::class),
 ];

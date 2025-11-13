@@ -66,6 +66,7 @@ class AuthenticationController
             return $this->redirectTo($response, '/login');
         }
         $session->set('loggedIn', true);
+        $session->set('passwordHash', password_hash($password, PASSWORD_DEFAULT));
         return $this->redirectTo($response, '/');
     }
 }
