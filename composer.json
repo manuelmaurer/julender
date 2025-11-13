@@ -8,7 +8,8 @@
     "slim/twig-view": "^3.4",
     "middlewares/trailing-slash": "^2.1",
     "odan/session": "^6.4",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "ext-gd": "*"
   },
   "autoload": {
     "psr-4": {
