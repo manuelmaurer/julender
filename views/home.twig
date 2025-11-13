@@ -19,8 +19,10 @@
             const dayString = day < 10 ? '0' + day : day;
             const imgElement = document.getElementById(`modal-image`);
             const headerElement = document.getElementById(`modalHeader`);
-            imgElement.src = `/image/${dayString}`;
+            const dlElement = document.getElementById(`modal-dl`);
+            imgElement.src = `/image/${dayString}?size=full`;
             headerElement.innerHTML = `{{ __t('Day') }} ${day}`;
+            dlElement.href = `/image/${dayString}?size=orig&action=download`;
         }
     </script>
 {% endblock %}
@@ -31,13 +33,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modalHeader">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __t('Close') }}" title="{{ __t('Close') }}"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modal-image" src="" alt="" style="max-height: 100%; max-width: 100%">
+                    <img id="modal-image" src="" alt="" style="max-height: 100%; max-width: 100%;">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __t('Close') }}</button>
+                    <a href="#" class="btn btn-primary mx-auto" id="modal-dl"><i class="bi-download"></i> {{ __t('Download') }}</a>
                 </div>
             </div>
         </div>

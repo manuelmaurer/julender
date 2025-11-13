@@ -1,7 +1,14 @@
 FROM php:8.3-apache
 
+# Configure PHP
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+RUN apt-get update && apt-get install -y \
+		libjpeg62-turbo-dev \
+		libpng-dev \
+	&& docker-php-ext-configure gd --with-jpeg \
+	&& docker-php-ext-install -j$(nproc) gd
 
+# Configure Apache
 RUN a2enmod rewrite
 
 # Update document root to public folder
