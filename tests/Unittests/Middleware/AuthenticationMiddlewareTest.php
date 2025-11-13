@@ -6,9 +6,11 @@ namespace App\Tests\Unittests\Middleware;
 
 use App\Middleware\AuthenticationMiddleware;
 use DI\Container;
-use Odan\Session\PhpSession;
+use Odan\Session\MemorySession;
+use Odan\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -18,13 +20,13 @@ final class AuthenticationMiddlewareTest extends TestCase
 {
     /**
      * Helper function to test runs where the handler is invoked
-     * @param Container $container
-     * @param PhpSession $session
+     * @param ContainerInterface $container
+     * @param SessionInterface $session
      * @return void
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    private function testAuthWithReturn(Container $container, PhpSession $session): void
+    private function testAuthWithReturn(ContainerInterface $container, SessionInterface $session): void
     {
         $responseMock = $this->getMockBuilder(Response::class)->getMock();
         $requestMock = $this->getMockBuilder(Request::class)
@@ -53,7 +55,7 @@ final class AuthenticationMiddlewareTest extends TestCase
      */
     public function testUnconfiguredAuth(): void
     {
-        $containerMock = $this->getMockBuilder(\DI\Container::class)
+        $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has'])
             ->getMock();
@@ -62,7 +64,7 @@ final class AuthenticationMiddlewareTest extends TestCase
             ->method('has')
             ->willReturn(false);
 
-        $this->testAuthWithReturn($containerMock, new PhpSession());
+        $this->testAuthWithReturn($containerMock, new MemorySession());
     }
 
     /**
@@ -73,7 +75,7 @@ final class AuthenticationMiddlewareTest extends TestCase
      */
     public function testDisabledAuth(): void
     {
-        $containerMock = $this->getMockBuilder(\DI\Container::class)
+        $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has', 'get'])
             ->getMock();
@@ -86,7 +88,7 @@ final class AuthenticationMiddlewareTest extends TestCase
             ->method('get')
             ->willReturn(null);
 
-        $this->testAuthWithReturn($containerMock, new PhpSession());
+        $this->testAuthWithReturn($containerMock, new MemorySession());
     }
 
     /**
@@ -98,7 +100,7 @@ final class AuthenticationMiddlewareTest extends TestCase
      */
     public function testEnabledAuthUnauthorized(): void
     {
-        $containerMock = $this->getMockBuilder(\DI\Container::class)
+        $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has', 'get'])
             ->getMock();
@@ -119,7 +121,7 @@ final class AuthenticationMiddlewareTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dut = new AuthenticationMiddleware($containerMock, new PhpSession());
+        $dut = new AuthenticationMiddleware($containerMock, new MemorySession());
         $response = $dut($requestMock, $handlerMock);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
@@ -133,7 +135,7 @@ final class AuthenticationMiddlewareTest extends TestCase
      */
     public function testEnabledAuthAuthorized(): void
     {
-        $containerMock = $this->getMockBuilder(\DI\Container::class)
+        $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has', 'get'])
             ->getMock();
@@ -146,7 +148,7 @@ final class AuthenticationMiddlewareTest extends TestCase
             ->method('get')
             ->willReturn('phpunit');
 
-        $session = new PhpSession();
+        $session = new MemorySession();
         $session->set('loggedIn', true);
 
         $this->testAuthWithReturn($containerMock, $session);

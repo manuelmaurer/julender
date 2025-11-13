@@ -8,9 +8,11 @@ use App\Middleware\LanguageMiddleware;
 use DI\Container;
 use DI\DependencyException;
 use DI\NotFoundException;
-use Odan\Session\PhpSession;
+use Odan\Session\MemorySession;
+use Odan\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -20,14 +22,14 @@ final class LanguageMiddlewareTest extends TestCase
 {
     /**
      * Helper function to test runs where the handler is invoked
-     * @param Container $container
-     * @param PhpSession $session
+     * @param ContainerInterface $container
+     * @param SessionInterface $session
      * @param string|null $headerLine
      * @return void
      * @throws DependencyException
      * @throws NotFoundException
      */
-    private function testMiddlewareWithResponse(Container $container, PhpSession $session, ?string $headerLine = null): void
+    private function testMiddlewareWithResponse(ContainerInterface $container, SessionInterface $session, ?string $headerLine = null): void
     {
         $responseMock = $this->getMockBuilder(Response::class)->getMock();
         $requestMock = $this->getMockBuilder(\Slim\Psr7\Request::class)
@@ -73,7 +75,7 @@ final class LanguageMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('get')
             ->willReturn(null);
-        $dut = new LanguageMiddleware($containerMock, new PhpSession());
+        $dut = new LanguageMiddleware($containerMock, new MemorySession());
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid configuration');
         $dut($this->getMockBuilder(Request::class)->getMock(), $this->getMockBuilder(RequestHandler::class)->getMock());
@@ -95,7 +97,7 @@ final class LanguageMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('get')
             ->willReturn(['de', 'en', 'fr']);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $session->set('language', 'en');
         $this->testMiddlewareWithResponse($containerMock, $session);
     }
@@ -116,7 +118,7 @@ final class LanguageMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('get')
             ->willReturn(['de', 'en', 'fr']);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $this->testMiddlewareWithResponse($containerMock, $session, 'en-US');
         $this->assertEquals('en', $session->get('language'));
     }
@@ -138,7 +140,7 @@ final class LanguageMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('get')
             ->willReturn(['de', 'en', 'fr']);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $this->testMiddlewareWithResponse($containerMock, $session, 'es-ES');
         $this->assertEquals('de', $session->get('language'));
     }

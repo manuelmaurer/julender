@@ -6,11 +6,12 @@ namespace App\Tests\Unittests\Controller;
 
 use App\Controller\AuthenticationController;
 use DI\Container;
-use Odan\Session\PhpSession;
+use Odan\Session\MemorySession;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Psr7\Request;
 use Slim\Views\Twig;
 
 #[CoversClass(AuthenticationController::class)]
@@ -66,8 +67,8 @@ class AuthenticationControllerTest extends TestCase
     public function testLoginPostPasswordNotSet(): void
     {
         $response = new \Slim\Psr7\Response();
-        $requestMock = $this->createMock(\Slim\Psr7\Request::class);
-        $session = new PhpSession();
+        $requestMock = $this->createMock(Request::class);
+        $session = new MemorySession();
         $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has'])
@@ -97,7 +98,7 @@ class AuthenticationControllerTest extends TestCase
     public function testLoginPostPasswordInvalid(mixed $payload): void
     {
         $response = new \Slim\Psr7\Response();
-        $requestMock = $this->getMockBuilder(\Slim\Psr7\Request::class)
+        $requestMock = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getParsedBody'])
             ->getMock();
@@ -105,7 +106,7 @@ class AuthenticationControllerTest extends TestCase
             ->expects($this->once())
             ->method('getParsedBody')
             ->willReturn($payload);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has', 'get'])
@@ -138,7 +139,7 @@ class AuthenticationControllerTest extends TestCase
     public function testLoginPostPasswordValid(): void
     {
         $response = new \Slim\Psr7\Response();
-        $requestMock = $this->getMockBuilder(\Slim\Psr7\Request::class)
+        $requestMock = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getParsedBody'])
             ->getMock();
@@ -146,7 +147,7 @@ class AuthenticationControllerTest extends TestCase
             ->expects($this->once())
             ->method('getParsedBody')
             ->willReturn(['password' => 'phpunit']);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $containerMock = $this->getMockBuilder(Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['has', 'get'])

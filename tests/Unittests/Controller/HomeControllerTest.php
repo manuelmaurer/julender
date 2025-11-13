@@ -7,7 +7,7 @@ namespace App\Tests\Unittests\Controller;
 use App\Controller\HomeController;
 use App\Helper\ReleaseDate;
 use DI\Container;
-use Odan\Session\PhpSession;
+use Odan\Session\MemorySession;
 use Odan\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -181,7 +181,7 @@ class HomeControllerTest extends TestCase
             ->method('get')
             ->with($this->equalTo('languages'))
             ->willReturn(['de', 'en']);
-        $session = new PhpSession();
+        $session = new MemorySession();
         $dut = new HomeController();
         $result = $dut->language($requestMock, $response, $containerMock, $session, 'de');
         $this->assertEquals(302, $result->getStatusCode());
