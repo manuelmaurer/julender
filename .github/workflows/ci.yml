@@ -27,15 +27,16 @@ jobs:
         with:
           php_version: "${{ matrix.php }}"
           dev: yes
-          php_extensions: fileinfo xdebug
+          php_extensions: fileinfo xdebug gd
       - name: Run Test ${{ matrix.test }}
         run: composer run ${{ matrix.test }}
         env:
           XDEBUG_MODE: coverage
       - name: Parse coverage
-        if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
+        if: ${{ matrix.test == 'phpunit' }}
         run: |
           echo "COVERAGE=$(php coverage.php)" >> $GITHUB_ENV
+          php coverage.php all
       - name: Upload coverage to Codecov
         if: ${{ matrix.test == 'phpunit' && github.ref == 'refs/heads/main' }}
         uses: schneegans/dynamic-badges-action@v1.7.0

@@ -29,6 +29,10 @@ if (empty($coverage)) {
     exit(1);
 }
 $requestedReturnType = strtolower($argv[1] ?? 'lines');
+if ($requestedReturnType == 'all') {
+    print_r($coverage);
+    exit(0);
+}
 if (!array_key_exists($requestedReturnType, $coverage)) {
     echo "No coverage data for $requestedReturnType.\n";
     exit(1);
