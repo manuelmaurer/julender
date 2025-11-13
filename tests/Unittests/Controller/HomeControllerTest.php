@@ -62,8 +62,9 @@ class HomeControllerTest extends TestCase
             ->method('render')
             ->with($this->identicalTo($responseMock), $this->equalTo('home.twig'))
             ->willReturn($responseMock);
+        $sessionMock = $this->createMock(SessionInterface::class);
         $dut = new HomeController();
-        $result = $dut->home($responseMock, $twigMock, $rdMock);
+        $result = $dut->home($responseMock, $twigMock, $rdMock, $sessionMock);
         $this->assertEquals($result, $responseMock);
     }
 

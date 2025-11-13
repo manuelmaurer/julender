@@ -9,7 +9,7 @@
             const imgElement = document.getElementById(`img-day-${day}`);
             const btnElement = document.getElementById(`btn-day-${day}`);
             btnElement.classList.add('d-none');
-            imgElement.src = `/image/${dayString}`;
+            imgElement.src = `/image/${dayString}?size=preview`;
             setTimeout(() => {
                 wrapElement.classList.remove('invisible');
             }, 200);
@@ -51,10 +51,16 @@
                     <div class="card-body" style="height: 15rem;">
                         <h5 class="card-title">{{ __t('Day')}} {{ day }}</h5>
                         {% if data[day]['isReleased'] %}
-                            <button id="btn-day-{{ day }}" class="btn btn-success mt-5" onclick="openImage({{ day }})">{{ __t('Open') }}</button>
-                            <div id="wrap-day-{{ day }}" class="invisible">
+                            {% if opened[day] %}
+                                {% set visbility, src = '', '/image/' ~ ("%02d"|format(day)) ~ "?size=preview"%}
+                            {% else %}
+                                <button id="btn-day-{{ day }}" class="btn btn-success mt-5" onclick="openImage({{ day }})">{{ __t('Open') }}</button>
+                                {% set visibility='invisible' %}
+                                {% set src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' %}
+                            {% endif %}
+                            <div id="wrap-day-{{ day }}" class="{{ visibility }}">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="modalImage({{ day }})">
-                                    <img id="img-day-{{ day }}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="" style="width: 100%;">
+                                    <img id="img-day-{{ day }}" src="{{ src }}" alt="" style="width: 100%;" class="rounded-1">
                                 </a>
                             </div>
                         {% else %}
