@@ -33,6 +33,20 @@ readonly class AuthenticationController
     }
 
     /**
+     * Perform logout
+     * @param Response $response
+     * @param SessionInterface $session
+     * @return Response
+     */
+    public function logout(Response $response, SessionInterface $session): Response
+    {
+        $session->delete('loggedIn');
+        $session->delete('passwordHash');
+        $session->delete('images');
+        return $this->redirectTo($response, '/');
+    }
+
+    /**
      * Validate login request
      * - Redirect to start page on successful login
      * - Save error message in flash and redirect to login page on error

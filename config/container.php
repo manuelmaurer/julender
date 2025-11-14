@@ -45,12 +45,14 @@ return [
             'debug' => $debug,
             'cache' => $debug ? false : __DIR__ . '/../tmp/twig_cache'
         ]);
-        $twig->addExtension($container->get(DebugExtension::class));
-        $flash = $container->get(SessionInterface::class)->getFlash();
+        if ($debug) {
+            $twig->addExtension($container->get(DebugExtension::class));
+        }
+        $session = $container->get(SessionInterface::class);
         $twigEnv = $twig->getEnvironment();
         $translator = new TwigFunction('__t', $container->get(TranslationExtension::class));
         $twigEnv->addFunction($translator);
-        $twigEnv->addGlobal('flash', $flash);
+        $twigEnv->addGlobal('session', $session);
         $twigEnv->addGlobal('isDebug', $debug);
         $twigEnv->addGlobal('languages', $container->get('languages'));
         $twigEnv->addGlobal('title', $container->get('title'));

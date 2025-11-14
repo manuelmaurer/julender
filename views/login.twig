@@ -6,7 +6,7 @@
 {% block content %}
     <div class="position-fixed z-1 w-100 h-100 mh-100 mw-100 bg-opacity-50 bg-black" style="top: 3em; left: 0;">
         <div class="container-sm mt-5 p-3 bg-white rounded-3">
-            {% for message in flash.get('login-error') %}
+            {% for message in session.getFlash().get('login-error') %}
                 <div class="alert alert-danger" role="alert">
                     {{ __t(message) }}
                 </div>
@@ -14,9 +14,9 @@
             <form action="/login" method="post">
                 <div class="mb-3">
                     <label for="password" class="form-label">{{ __t('Password') }}</label>
-                    <input type="password" id="password" name="password" placeholder="{{ __t('Password') }}" class="form-control" autofocus />
+                    <input type="password" id="password" name="password" placeholder="{{ __t('Password') }}" class="form-control" autofocus required />
                 </div>
-                <button type="submit" class="btn btn-primary">{{ __t('Login') }}</button>
+                <button type="submit" class="btn btn-outline-primary">{{ __t('Login') }}</button>
             </form>
         </div>
     </div>

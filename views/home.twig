@@ -56,7 +56,7 @@
                             {% if opened[day] %}
                                 {% set visbility, src = '', '/image/' ~ ("%02d"|format(day)) ~ "?size=preview"%}
                             {% else %}
-                                <button id="btn-day-{{ day }}" class="btn btn-success mt-5" onclick="openImage({{ day }})">{{ __t('Open') }}</button>
+                                <button id="btn-day-{{ day }}" class="btn btn-outline-success mt-5" onclick="openImage({{ day }})"><i class="bi-door-open"></i> {{ __t('Open') }}</button>
                                 {% set visibility='invisible' %}
                                 {% set src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' %}
                             {% endif %}
@@ -66,7 +66,7 @@
                                 </a>
                             </div>
                         {% else %}
-                            <div class="text-center pt-5">
+                            <div class="text-center pt-5 text-danger">
                                 <i class="bi bi-calendar2-x display-4" title="{{ __t('Door will open on') }} {{ data[day]['tsString'] }} ({{ data[day]['diffString'] }} {{ __t('days') }})"></i>
                             </div>
                         {% endif %}

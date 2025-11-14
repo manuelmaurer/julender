@@ -172,4 +172,25 @@ class AuthenticationControllerTest extends TestCase
         $this->assertTrue($session->has('passwordHash'));
         $this->assertTrue(password_verify('phpunit', $session->get('passwordHash')));
     }
+
+    /**
+     * @return void
+     */
+    public function testLogout(): void
+    {
+        $response = new \Slim\Psr7\Response();
+        $session = new MemorySession();
+        $session->set('loggedIn', true);
+        $session->set('passwordHash', password_hash('phpunit', PASSWORD_DEFAULT));
+        $session->set('images', ['01']);
+        $session->set('language', 'de');
+        $dut = new AuthenticationController();
+        $result = $dut->logout($response, $session);
+        $this->assertEquals(302, $result->getStatusCode());
+        $this->assertEquals('/', $result->getHeaderLine('Location'));
+        $this->assertFalse($session->has('loggedIn'));
+        $this->assertFalse($session->has('passwordHash'));
+        $this->assertFalse($session->has('images'));
+        $this->assertEquals('de', $session->get('language'));
+    }
 }
