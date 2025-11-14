@@ -41,11 +41,13 @@ class ReleaseDate
         return array_reduce(range(1, 24), function ($carry, $item) use ($now, $year, $month, $tz, $dateFormat) {
             $ts = new DateTimeImmutable("$year-$month-$item 00:00:00", $tz);
             $diff = $now->diff($ts);
+            // Add one day, because below 1 full day, it is counted as 0 days
+            $diffDays = strval($diff->days + 1);
             $carry[$item] = [
                 'ts' => $ts,
                 'tsString' => $ts->format($dateFormat),
                 'diff' => $diff,
-                'diffString' => $diff->format('%a'),
+                'diffString' => $diffDays,
                 'isReleased' => $ts <= $now,
             ];
             return $carry;
