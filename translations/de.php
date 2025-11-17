@@ -16,4 +16,6 @@ return [
     'Close' => 'Schließen',
     'Server error' => 'Serverfehler',
     'Invalid password' => 'Falsches Passwort',
+    'Logout' => 'Abmelden',
+    'Close all doors and log out' => 'Alle Türen schließen und abmelden',
 ];

@@ -14,9 +14,14 @@ use Slim\Routing\RouteCollectorProxy;
 return function (App $app) {
     // Endpoints with language detection
     $app->group('/', function (RouteCollectorProxy $group) {
+        // Authenticated endpoints
         $group->get('', [HomeController::class, 'home'])
             ->add(AuthenticationMiddleware::class)
             ->setName('get.home');
+        $group->get('logout', [AuthenticationController::class, 'logout'])
+            ->add(AuthenticationMiddleware::class)
+            ->setName('get.logout');
+        // Unauthenticated endpoints
         $group->get('login', [AuthenticationController::class, 'getLogin'])->setName('get.login');
         $group->post('login', [AuthenticationController::class, 'postLogin'])->setName('post.login');
     })
