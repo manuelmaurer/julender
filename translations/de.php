@@ -18,4 +18,7 @@ return [
     'Invalid password' => 'Falsches Passwort',
     'Logout' => 'Abmelden',
     'Close all doors and log out' => 'Alle Türen schließen und abmelden',
+    'Download' => 'Herunterladen',
+    'Door will open on' => 'Tür öffnet sich am',
+    'days' => 'Tage',
 ];
