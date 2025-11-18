@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controller\AuthenticationController;
 use App\Controller\HomeController;
 use App\Controller\ImageController;
+use App\Middleware\ApiKeyAuthMiddleware;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;
 use Odan\Session\Middleware\SessionStartMiddleware;
@@ -35,4 +36,7 @@ return function (App $app) {
     // Images
     $app->get('/image/{day}', [ImageController::class, 'get'])->setName('get.image')
         ->add(SessionStartMiddleware::class);
+
+    $app->delete('/v1/cache[/{cacheType}]', [ImageController::class, 'clearCache'])->setName('delete.cache')
+        ->add(ApiKeyAuthMiddleware::class);
 };

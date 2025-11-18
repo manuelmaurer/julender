@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Extensions\TranslationExtension;
+use App\Middleware\ApiKeyAuthMiddleware;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;
 use DI\Container;
@@ -17,6 +18,8 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extension\DebugExtension;
 use Twig\TwigFunction;
+
+use function DI\get;
 
 return [
     // Odan Session configuration
@@ -58,6 +61,8 @@ return [
         $twigEnv->addGlobal('title', $container->get('title'));
         return $twig;
     },
+    ApiKeyAuthMiddleware::class => DI\autowire(ApiKeyAuthMiddleware::class)
+        ->constructorParameter('apiKey', get('apiKey')),
     // Autowired middlewares
     Whoops::class => DI\autowire(Whoops::class),
     TrailingSlash::class => DI\autowire(TrailingSlash::class),
