@@ -27,7 +27,7 @@ jobs:
         with:
           php_version: "${{ matrix.php }}"
           dev: yes
-          php_extensions: fileinfo xdebug gd
+          php_extensions: fileinfo xdebug imagick
       - name: Run Test ${{ matrix.test }}
         run: composer run ${{ matrix.test }}
         env:
