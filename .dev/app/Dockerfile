@@ -2,11 +2,11 @@ FROM php:8.3-apache
 
 # Configure PHP
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-RUN apt-get update && apt-get install -y \
-		libjpeg62-turbo-dev \
-		libpng-dev \
-	&& docker-php-ext-configure gd --with-jpeg \
-	&& docker-php-ext-install -j$(nproc) gd
+RUN apt-get update && apt-get install --no-install-recommends -y \
+        libmagickwand-dev \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick
+
 
 # Configure Apache
 RUN a2enmod rewrite

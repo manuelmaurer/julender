@@ -31,11 +31,11 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 
 # Configure PHP
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-RUN apt-get update && apt-get install -y \
-		libjpeg62-turbo-dev \
-		libpng-dev \
-	&& docker-php-ext-configure gd --with-jpeg \
-	&& docker-php-ext-install -j$(nproc) gd
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libmagickwand-dev \
+	&& pecl install imagick \
+	&& docker-php-ext-enable imagick \
+    && rm -rf /var/lib/apt/lists/*
 
 # Volume mount the media folder
 VOLUME /var/www/html/media

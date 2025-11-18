@@ -33,6 +33,7 @@ return function (App $app) {
         ->add(SessionStartMiddleware::class);
 
     // Images
-    $app->get('/image/{day}', [ImageController::class, 'get'])->setName('get.image')
+    $app->get('/image/{day}', [ImageController::class, 'getImage'])->setName('get.image')
+        ->add(AuthenticationMiddleware::class)
         ->add(SessionStartMiddleware::class);
 };

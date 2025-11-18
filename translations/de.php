@@ -20,5 +20,7 @@ return [
     'Close all doors and log out' => 'Alle Türen schließen und abmelden',
     'Download' => 'Herunterladen',
     'Door will open on' => 'Tür öffnet sich am',
+    'day' => 'Tag',
     'days' => 'Tage',
+    'Y-m-d' => 'd.m.Y',
 ];
