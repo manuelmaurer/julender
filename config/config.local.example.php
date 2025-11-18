@@ -6,10 +6,10 @@
 
 declare(strict_types=1);
 
-// Overwrite or add any values you need here. Make sure to use the correct
-// value for the predefined variables (e.g. DateTimeZone for timezone)
+// Overwrite or add any values you need here. Values are always strings!
 
 return [
-    'languages' => ['de', 'fr'],
-    'timezone' => new DateTimeZone('Antarctica/McMurdo'),
+    'debug' => '1',
+    'languages' => 'de,fr',
+    'timezone' => 'Antarctica/McMurdo',
 ];
