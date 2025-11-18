@@ -30,7 +30,7 @@ Naviate to http://localhost:8080 to access the calendar. See [Configuration](#Co
 
 ## Configuration
 
-The calendar requires 24 images (named 01 through 24) to be placed in the [media/](media/) folder
+The calendar requires 24 images (named 01 through 24 without any file extension) to be placed in the [media/](media/) folder
 (or in the volume mount in case of docker) which will be served on the respective day.
 The mime type is automatically detected when delivered to the browser.
 
