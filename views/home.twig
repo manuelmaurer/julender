@@ -58,16 +58,16 @@
                             {% else %}
                                 <button id="btn-day-{{ day }}" class="btn btn-outline-success mt-5" onclick="openImage({{ day }})"><i class="bi-door-open"></i> {{ __t('Open') }}</button>
                                 {% set visibility='invisible' %}
-                                {% set src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' %}
+                                {% set src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=' %}
                             {% endif %}
                             <div id="wrap-day-{{ day }}" class="{{ visibility }}">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="modalImage({{ day }})">
-                                    <img id="img-day-{{ day }}" src="{{ src }}" alt="" style="width: 100%;" class="rounded-1">
+                                    <img id="img-day-{{ day }}" src="{{ src }}" alt="" class="rounded-1">
                                 </a>
                             </div>
                         {% else %}
                             <div class="text-center pt-5 text-danger">
-                                <i class="bi bi-calendar2-x display-4" title="{{ __t('Door will open on') }} {{ data[day]['tsString'] }} ({{ data[day]['diffString'] }} {{ __t('days') }})"></i>
+                                <i class="bi bi-calendar2-x display-4" title="{{ __t('Door will open on') }} {{ data[day]['ts']|date(__t('Y-m-d')) }} ({{ data[day]['diffString'] }} {{ __t(data[day]['diffString'] == '1' ? 'day' : 'days') }})"></i>
                             </div>
                         {% endif %}
                     </div>

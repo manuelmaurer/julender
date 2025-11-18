@@ -20,6 +20,7 @@ use Slim\Exception\HttpUnauthorizedException;
 class ImageControllerTest extends TestCase
 {
     private string $mediaPath = __DIR__ . '/../../assets/media';
+    private string $cachePath = __DIR__ . '/../../assets/cache/images';
     /**
      * @return array<string, array<int>>
      */
@@ -71,10 +72,19 @@ class ImageControllerTest extends TestCase
         $responseMock = $this->createMock(Response::class);
         $rdMock = $this->createMock(ReleaseDate::class);
         $sessionMock = $this->createMock(SessionInterface::class);
-        $dut = new ImageController();
+        $containerMock = $this->getMockBuilder(\DI\Container::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get'])
+            ->getMock();
+        $containerMock
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('imageCache'))
+            ->willReturn(false);
+        $dut = new ImageController($containerMock, $this->mediaPath, $this->cachePath);
         $this->expectException(HttpNotFoundException::class);
         $this->expectExceptionMessage('Invalid day');
-        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
+        $dut->getImage($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
     }
 
     /**
@@ -98,10 +108,19 @@ class ImageControllerTest extends TestCase
             ->with($this->equalTo(11))
             ->willReturn(false);
         $sessionMock = $this->createMock(SessionInterface::class);
-        $dut = new ImageController();
+        $containerMock = $this->getMockBuilder(\DI\Container::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get'])
+            ->getMock();
+        $containerMock
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('imageCache'))
+            ->willReturn(false);
+        $dut = new ImageController($containerMock, $this->mediaPath, $this->cachePath);
         $this->expectException(HttpUnauthorizedException::class);
         $this->expectExceptionMessage('Not yet released');
-        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, '11');
+        $dut->getImage($requestMock, $responseMock, $rdMock, $sessionMock, '11');
     }
 
     /**
@@ -127,10 +146,19 @@ class ImageControllerTest extends TestCase
             ->with($this->equalTo($day))
             ->willReturn(true);
         $sessionMock = $this->createMock(SessionInterface::class);
-        $dut = new ImageController($this->mediaPath);
+        $containerMock = $this->getMockBuilder(\DI\Container::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get'])
+            ->getMock();
+        $containerMock
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('imageCache'))
+            ->willReturn(false);
+        $dut = new ImageController($containerMock, $this->mediaPath, $this->cachePath);
         $this->expectException(HttpNotFoundException::class);
         $this->expectExceptionMessage('File not found');
-        $dut->get($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
+        $dut->getImage($requestMock, $responseMock, $rdMock, $sessionMock, strval($day));
     }
 
     /**
@@ -158,8 +186,17 @@ class ImageControllerTest extends TestCase
             ->with($this->equalTo($day))
             ->willReturn(true);
         $session = new MemorySession();
-        $dut = new ImageController($this->mediaPath);
-        $result = $dut->get($requestMock, $response, $rdMock, $session, strval($day));
+        $containerMock = $this->getMockBuilder(\DI\Container::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get'])
+            ->getMock();
+        $containerMock
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('imageCache'))
+            ->willReturn(false);
+        $dut = new ImageController($containerMock, $this->mediaPath, $this->cachePath);
+        $result = $dut->getImage($requestMock, $response, $rdMock, $session, strval($day));
         $this->assertEquals($expectedMime, $result->getHeaderLine('Content-Type'));
         $this->assertEquals($expectedSize, $result->getHeaderLine('Content-Length'));
         $this->assertIsArray($session->get('images'));
