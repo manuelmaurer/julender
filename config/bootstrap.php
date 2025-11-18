@@ -14,22 +14,12 @@ use Slim\Views\TwigMiddleware;
 require __DIR__ . '/../vendor/autoload.php';
 
 $builder = new ContainerBuilder();
-$defs = [
-    'container.php', // container definitions
-    'config.php', // default configuration
-    'config.local.php' // custom configuration
-];
-// Iterate all files and add them to the container
-foreach ($defs as $def) {
-    if (!is_file(__DIR__ . '/' . $def)) {
-        continue;
-    }
-    $containerDef = require __DIR__ . '/' . $def;
-    $builder->addDefinitions($containerDef);
-}
+$builder->addDefinitions((require __DIR__ . '/config.php'));
+$builder->addDefinitions((require __DIR__ . '/container.php'));
+
 // We can't use debug from config for this, because the container is not yet built
 if (getenv('CONTAINER_CACHE') == '1') {
-    $builder->enableCompilation(__DIR__ . '/../tmp');
+    $builder->enableCompilation(__DIR__ . '/../tmp/container_cache');
 }
 $container = $builder->build();
 
