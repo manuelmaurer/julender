@@ -26,7 +26,7 @@ class ReleaseDate
 
     /**
      * @param string $referenceDate
-     * @return array<int, array{ts: DateTimeImmutable, tsString: string, diff: DateInterval, diffString: string, isReleased: bool}>
+     * @return array<int, array{ts: DateTimeImmutable, diff: DateInterval, diffDays: string, isReleased: bool}>
      * @throws DependencyException
      * @throws NotFoundException
      * @throws \DateMalformedStringException
@@ -37,17 +37,15 @@ class ReleaseDate
         $now = new DateTimeImmutable($referenceDate, $tz);
         $year = $now->format('Y');
         $month = intval($this->container->get('adventMonth'));
-        $dateFormat = $this->container->has('dateFormat') ? $this->container->get('dateFormat') : 'Y-m-d';
-        return array_reduce(range(1, 24), function ($carry, $item) use ($now, $year, $month, $tz, $dateFormat) {
+        return array_reduce(range(1, 24), function ($carry, $item) use ($now, $year, $month, $tz) {
             $ts = new DateTimeImmutable("$year-$month-$item 00:00:00", $tz);
             $diff = $now->diff($ts);
             // Add one day, because below 1 full day, it is counted as 0 days
             $diffDays = strval($diff->days + 1);
             $carry[$item] = [
                 'ts' => $ts,
-                'tsString' => $ts->format($dateFormat),
                 'diff' => $diff,
-                'diffString' => $diffDays,
+                'diffDays' => $diffDays,
                 'isReleased' => $ts <= $now,
             ];
             return $carry;

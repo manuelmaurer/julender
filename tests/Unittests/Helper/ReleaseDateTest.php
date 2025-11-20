@@ -57,33 +57,19 @@ final class ReleaseDateTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
-     */
-    public static function formatDataProvider(): array
-    {
-        return [
-            'US date only' => ['Y-m-d'],
-            'US full' => ['Y-m-d H:i:s'],
-            'Europe date only' => ['d.m.Y'],
-            'Europe full' => ['d.m.Y H:i:s'],
-        ];
-    }
-
-    /**
-     * @param string|null $format
      * @return Container
      */
-    private function getContainerMock(?string $format = null): Container
+    private function getContainerMock(): Container
     {
         $containerMock = $this->getMockBuilder(\DI\Container::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['get', 'has'])
             ->getMock();
-        $invokeAssertion = $this->exactly($format === null ? 2 : 3);
+        $invokeAssertion = $this->exactly(2);
         $containerMock
             ->expects($invokeAssertion)
             ->method('get')
-            ->willReturnCallback(function ($parameter) use ($invokeAssertion, $format) {
+            ->willReturnCallback(function ($parameter) use ($invokeAssertion) {
                 $tz = new DateTimeZone('Europe/Berlin');
                 if ($invokeAssertion->numberOfInvocations() === intval(1)) {
                     $this->assertEquals('timezone', $parameter);
@@ -92,23 +78,14 @@ final class ReleaseDateTest extends TestCase
                     $this->assertEquals('adventMonth', $parameter);
                     return intval(12);
                 }
-                if ($format !== null && $invokeAssertion->numberOfInvocations() === intval(3)) {
-                    $this->assertEquals('dateFormat', $parameter);
-                    return $format;
-                }
                 return null;
             });
-        $containerMock
-            ->expects($this->once())
-            ->method('has')
-            ->with('dateFormat')
-            ->willReturn($format !== null);
 
         return $containerMock;
     }
 
     /**
-     * @param array<int, array{ts: DateTimeImmutable, tsString: string, diff: DateInterval, diffString: string, isReleased: bool}> $data
+     * @param array<int, array{ts: DateTimeImmutable, diff: DateInterval, diffDays: string, isReleased: bool}> $data
      * @return void
      */
     private function validateBasicArray(array $data): void
@@ -118,12 +95,10 @@ final class ReleaseDateTest extends TestCase
             $this->assertArrayHasKey($day, $data);
             $this->assertArrayHasKey('ts', $data[$day]);
             $this->assertInstanceOf(\DateTimeImmutable::class, $data[$day]['ts']);
-            $this->assertArrayHasKey('tsString', $data[$day]);
-            $this->assertIsString($data[$day]['tsString']);
             $this->assertArrayHasKey('diff', $data[$day]);
             $this->assertInstanceOf(\DateInterval::class, $data[$day]['diff']);
-            $this->assertArrayHasKey('diffString', $data[$day]);
-            $this->assertIsString($data[$day]['diffString']);
+            $this->assertArrayHasKey('diffDays', $data[$day]);
+            $this->assertIsString($data[$day]['diffDays']);
             $this->assertArrayHasKey('isReleased', $data[$day]);
             $this->assertIsBool($data[$day]['isReleased']);
         }
@@ -180,24 +155,5 @@ final class ReleaseDateTest extends TestCase
         $containerMock = $this->getContainerMock();
         $dut = new ReleaseDate($containerMock);
         $this->assertEquals($expectedResult, $dut->isReleased($day, $referenceDate));
-    }
-
-    /**
-     * @param string $format
-     * @return void
-     * @throws DependencyException
-     * @throws NotFoundException
-     * @throws \DateMalformedStringException
-     */
-    #[DataProvider('formatDataProvider')]
-    public function testFormat(string $format): void
-    {
-        $containerMock = $this->getContainerMock($format);
-        $dut = new ReleaseDate($containerMock);
-        $data = $dut->getAllReleaseDates('2025-12-01 12:00:00');
-        $this->validateBasicArray($data);
-        for ($day = ReleaseDate::RELEASE_DAY_START; $day <= ReleaseDate::RELEASE_DAY_END; $day++) {
-            $this->assertEquals((new DateTimeImmutable("2025-12-$day 00:00:00"))->format($format), $data[$day]['tsString']);
-        }
     }
 }
