@@ -151,9 +151,9 @@ readonly class ImageController
         // remove exif data
         $thumb->stripImage();
         // resize to width first
-        $thumb->resizeImage($maxWidth, 0, imagick::FILTER_LANCZOS, 0.1);
+        $thumb->resizeImage($maxWidth, 0, imagick::FILTER_CATROM, 0.5);
         if ($thumb->getImageHeight() > $maxHeight) {
-            $thumb->resizeImage(0, $maxHeight, imagick::FILTER_LANCZOS, 0.1);
+            $thumb->resizeImage(0, $maxHeight, imagick::FILTER_CATROM, 0.5);
         }
         file_put_contents($cacheFile, $thumb->getImageBlob());
         return $cacheFile;
