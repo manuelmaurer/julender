@@ -67,7 +67,7 @@
                             </div>
                         {% else %}
                             <div class="text-center pt-5 text-danger">
-                                <i class="bi bi-calendar2-x display-4" title="{{ __t('Door will open on') }} {{ data[day]['ts']|date(__t('Y-m-d')) }} ({{ data[day]['diffString'] }} {{ __t(data[day]['diffString'] == '1' ? 'day' : 'days') }})"></i>
+                                <i class="bi bi-calendar2-x display-4" title="{{ __t('Door will open on') }} {{ data[day]['ts']|date(__t('Y-m-d'), false) }} ({{ data[day]['diffDays'] }} {{ __t(data[day]['diffDays'] == '1' ? 'day' : 'days') }})"></i>
                             </div>
                         {% endif %}
                     </div>
