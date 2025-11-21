@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controller\AuthenticationController;
 use App\Controller\HomeController;
 use App\Controller\ImageController;
+use App\Middleware\ApiKeyAuthMiddleware;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;
 use Odan\Session\Middleware\SessionStartMiddleware;
@@ -36,4 +37,12 @@ return function (App $app) {
     $app->get('/image/{day}', [ImageController::class, 'getImage'])->setName('get.image')
         ->add(AuthenticationMiddleware::class)
         ->add(SessionStartMiddleware::class);
+
+    // API routes
+    $app->group('/v1', function (RouteCollectorProxy $group) {
+        $group->group('/images', function (RouteCollectorProxy $imageGroup) {
+            $imageGroup->put('/{day}/{size}', [ImageController::class, 'createThumbnail'])->setName('get.image.api');
+            $imageGroup->delete('/{day}/{size}', [ImageController::class, 'deleteThumbnail'])->setName('get.image.api');
+        });
+    })->add(ApiKeyAuthMiddleware::class);
 };

@@ -21,6 +21,10 @@ use Slim\Exception\HttpUnauthorizedException;
  */
 readonly class ImageController
 {
+    private const array THUMB_SIZES = [
+        'preview' => ['w' => 250, 'h' => 188],
+        'full' => ['w' => 1000, 'h' => 800],
+    ];
     private string $mediaPath;
     private string $cachePath;
     private bool $useCache;
@@ -37,6 +41,9 @@ readonly class ImageController
         $this->mediaPath = rtrim($mediaPath, '/');
         $this->cachePath = rtrim($cachePath, '/');
         $this->useCache = $container->get('imageCache');
+        if (!is_dir($this->cachePath) || !is_writable($this->cachePath)) {
+            mkdir($this->cachePath, 0777, true);
+        }
     }
 
     /**
@@ -46,6 +53,53 @@ readonly class ImageController
     private function getImagePath(int $day): string
     {
         return sprintf("%s/%02d", $this->mediaPath, $day);
+    }
+
+    /**
+     * @param int $day
+     * @param string $size
+     * @return string
+     */
+    private function getThumbnailPath(int $day, string $size): string
+    {
+        return sprintf("%s/%02d_t_%dx%d.jpg", $this->cachePath, $day, self::THUMB_SIZES[$size]['w'], self::THUMB_SIZES[$size]['h']);
+    }
+
+    /**
+     * Resize an image to a given width
+     * @param int $day
+     * @param string $size
+     * @return string
+     * @throws \ImagickException
+     */
+    private function resizeImage(int $day, string $size): string
+    {
+        // check cache
+        $cacheFile = $this->getThumbnailPath($day, $size);
+        if (is_readable($cacheFile) && $this->useCache) {
+            return $cacheFile;
+        }
+        $imagePath = $this->getImagePath($day);
+
+        $thumb = new Imagick($imagePath);
+        // rotate image first if necessary
+        $orientation = $thumb->getImageProperties('exif:Orientation')['exif:Orientation'] ?? '1';
+        $rotation = match ($orientation) {
+            '3' => 180,
+            '6' => 90,
+            '8' => 270,
+            default => 0
+        };
+        $thumb->rotateImage(new ImagickPixel('none'), $rotation);
+        // remove exif data
+        $thumb->stripImage();
+        // resize to width first
+        $thumb->resizeImage(self::THUMB_SIZES[$size]['w'], 0, imagick::FILTER_CATROM, 0.5);
+        if ($thumb->getImageHeight() > self::THUMB_SIZES[$size]['h']) {
+            $thumb->resizeImage(0, self::THUMB_SIZES[$size]['h'], imagick::FILTER_CATROM, 0.5);
+        }
+        file_put_contents($cacheFile, $thumb->getImageBlob());
+        return $cacheFile;
     }
 
     /**
@@ -79,35 +133,9 @@ readonly class ImageController
         $session->set('images', $opened);
 
         $size = $request->getQueryParams()['size'] ?? '';
-        $action = $request->getQueryParams()['action'] ?? '';
+        $mime = mime_content_type($imagePath) ?: 'application/octet-stream';
 
-        return $this->deliverImage($response, $dayNumber, $size, $action);
-    }
-
-    /**
-     * Load the specified image in the given size into the response body
-     * @param Response $response
-     * @param int $day
-     * @param string $targetSize
-     * @param string $action
-     * @return Response
-     * @throws \ImagickException
-     */
-    private function deliverImage(Response $response, int $day, string $targetSize, string $action): Response
-    {
-        if (!is_dir($this->cachePath) || !is_writable($this->cachePath)) {
-            mkdir($this->cachePath, 0777, true);
-        }
-        $loadPath = match ($targetSize) {
-            'preview' => $this->resizeImage($day, 250, 188),
-            'full' => $this->resizeImage($day, 1000, 800),
-            default => $this->getImagePath($day),
-        };
-        if ($action === 'generate') {
-            return $response->withStatus(204);
-        }
-        $mime = mime_content_type($loadPath) ?: 'application/octet-stream';
-        if ($action === 'download') {
+        if ($size === 'download') {
             $fileExt = $mime == 'application/octet-stream' ? 'bin' : (explode('/', $mime)[1] ?? 'bin');
             $fileName = sprintf("day_%02d.%s", $day, $fileExt);
             $response = $response
@@ -115,47 +143,53 @@ readonly class ImageController
                 ->withHeader('Content-Transfer-Encoding', 'Binary')
                 ->withHeader('Content-Disposition', "attachment; filename=\"$fileName\"");
         }
-        $response->getBody()->write(file_get_contents($loadPath) ?: 'Could not read file');
+
+        if (array_key_exists($size, self::THUMB_SIZES)) {
+            $imagePath = $this->resizeImage($dayNumber, $size);
+        }
+
+        $response->getBody()->write(file_get_contents($imagePath) ?: 'Could not read file');
         return $response
             ->withHeader('Content-Type', $mime)
-            ->withHeader('Content-Length', (string) filesize($loadPath));
+            ->withHeader('Content-Length', (string) filesize($imagePath));
     }
 
     /**
-     * Resize an image to a given width
-     * @param int $day
-     * @param int $maxWidth
-     * @param int $maxHeight
-     * @return string
+     * @param Request $request
+     * @param Response $response
+     * @param string $day
+     * @param string $size
+     * @return Response
      * @throws \ImagickException
      */
-    private function resizeImage(int $day, int $maxWidth, int $maxHeight): string
+    public function createThumbnail(Request $request, Response $response, string $day, string $size): Response
     {
-        // check cache
-        $cacheFile = sprintf("%s/%02d_t_%dx%d.jpg", $this->cachePath, $day, $maxWidth, $maxHeight);
-        if (is_readable($cacheFile) && $this->useCache) {
-            return $cacheFile;
+        $dayNumber = intval($day);
+        $imagePath = $this->getImagePath($dayNumber);
+        if (!is_readable($imagePath) || filesize($imagePath) === 0) {
+            throw new HttpNotFoundException($request, "File not found");
         }
-        $imagePath = $this->getImagePath($day);
+        $this->resizeImage($dayNumber, $size);
+        return $response->withStatus(200);
+    }
 
-        $thumb = new Imagick($imagePath);
-        // rotate image first if necessary
-        $orientation = $thumb->getImageProperties('exif:Orientation')['exif:Orientation'] ?? '1';
-        $rotation = match ($orientation) {
-            '3' => 180,
-            '6' => 90,
-            '8' => 270,
-            default => 0
-        };
-        $thumb->rotateImage(new ImagickPixel('none'), $rotation);
-        // remove exif data
-        $thumb->stripImage();
-        // resize to width first
-        $thumb->resizeImage($maxWidth, 0, imagick::FILTER_CATROM, 0.5);
-        if ($thumb->getImageHeight() > $maxHeight) {
-            $thumb->resizeImage(0, $maxHeight, imagick::FILTER_CATROM, 0.5);
+    /**
+     * @param Response $response
+     * @param string $day
+     * @param string $size
+     * @return Response
+     */
+    public function deleteThumbnail(Response $response, string $day, string $size): Response
+    {
+        $dayNumber = intval($day);
+        $thumbPath = $this->getThumbnailPath($dayNumber, $size);
+        if (!is_file($thumbPath)) {
+            return $response->withStatus(204);
         }
-        file_put_contents($cacheFile, $thumb->getImageBlob());
-        return $cacheFile;
+        unlink($thumbPath);
+        if (!is_file($thumbPath)) {
+            return $response->withStatus(200);
+        }
+        return $response->withStatus(500);
     }
 }
