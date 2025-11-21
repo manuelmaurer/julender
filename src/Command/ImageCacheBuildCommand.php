@@ -54,12 +54,12 @@ class ImageCacheBuildCommand extends ImageCacheCommand
                 continue;
             }
             $scode = $response->getStatusCode();
-            if ($scode === StatusCode::NO_CONTENT) {
+            if ($scode === StatusCode::NO_CONTENT || $scode === StatusCode::OK) {
                 $output->writeln('<info>OK</info>');
                 continue;
             }
             $errors[] = "$id: Response Code $scode";
-            $output->writeln('<error>FAILED</error>');
+            $output->writeln("<error>FAILED</error>");
         }
         if (empty($errors)) {
             return Command::SUCCESS;
