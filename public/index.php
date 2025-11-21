@@ -1,3 +1,7 @@
 <?php
 
-(require __DIR__ . '/../config/bootstrap.php')->run();
+use Slim\App;
+
+(require __DIR__ . '/../config/bootstrap.php')
+    ->get(App::class)
+    ->run();

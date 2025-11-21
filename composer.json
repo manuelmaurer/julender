@@ -9,7 +9,9 @@
     "middlewares/trailing-slash": "^2.1",
     "odan/session": "^6.4",
     "ext-fileinfo": "*",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "symfony/console": "^7.3",
+    "shrikeh/teapot": "^3.0"
   },
   "autoload": {
     "psr-4": {

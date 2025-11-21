@@ -22,7 +22,7 @@
             const dlElement = document.getElementById(`modal-dl`);
             imgElement.src = `/image/${dayString}?size=full`;
             headerElement.innerHTML = `{{ __t('Day') }} ${day}`;
-            dlElement.href = `/image/${dayString}?size=orig&action=download`;
+            dlElement.href = `/image/${dayString}?size=download`;
         }
     </script>
 {% endblock %}

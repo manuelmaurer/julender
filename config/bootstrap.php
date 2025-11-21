@@ -21,27 +21,4 @@ $builder->addDefinitions((require __DIR__ . '/container.php'));
 if (getenv('CONTAINER_CACHE') == '1') {
     $builder->enableCompilation(__DIR__ . '/../tmp/container_cache');
 }
-$container = $builder->build();
-
-// Initialize slim application
-$app = Bridge::create($container);
-
-$app->add($container->get(SessionStartMiddleware::class));
-$app->add(TwigMiddleware::create($app, $container->get(Twig::class)));
-
-$app->addBodyParsingMiddleware();
-$app->addRoutingMiddleware();
-$app->add($container->get(TrailingSlash::class));
-$app->add($container->get(LanguageMiddleware::class));
-
-// Register routes
-(require __DIR__ . '/routes.php')($app);
-
-// Error handling
-if ($container->get('debug')) {
-    $app->add($container->get(Whoops::class));
-} else {
-    $app->addErrorMiddleware(false, true, false);
-}
-
-return $app;
+return $builder->build();

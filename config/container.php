@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Command\ImageCacheBuildCommand;
+use App\Command\ImageCacheClearCommand;
 use App\Extensions\TranslationExtension;
+use App\Middleware\ApiKeyAuthMiddleware;
 use App\Middleware\AuthenticationMiddleware;
 use App\Middleware\LanguageMiddleware;
+use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use Middlewares\TrailingSlash;
 use Middlewares\Whoops;
@@ -12,9 +16,11 @@ use Odan\Session\Middleware\SessionStartMiddleware;
 use Odan\Session\PhpSession;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
+use Slim\App;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Symfony\Component\Console\Application;
 use Twig\Extension\DebugExtension;
 use Twig\TwigFunction;
 
@@ -27,7 +33,7 @@ return [
         return $container->get(PhpSession::class);
     },
     PhpSession::class => function () {
-        $session = new PhpSession([
+        return new PhpSession([
             'name' => 'advent',
             'lifetime' => 2 * 30 * 24 * 60 * 60, // 2 months
             'save_path' => null,
@@ -36,7 +42,6 @@ return [
             'httponly' => true,
             'cache_limiter' => 'nocache',
         ]);
-        return $session;
     },
     // Twig configuration
     Twig::class => function (Container $container) {
@@ -58,7 +63,53 @@ return [
         $twigEnv->addGlobal('title', $container->get('title'));
         return $twig;
     },
-    // Autowired middlewares
+    App::class => function (Container $container) {
+        // Initialize slim application
+        $app = Bridge::create($container);
+
+        $app->add($container->get(SessionStartMiddleware::class));
+        $app->add(TwigMiddleware::create($app, $container->get(Twig::class)));
+        $app->addBodyParsingMiddleware();
+        $app->addRoutingMiddleware();
+        $app->add($container->get(TrailingSlash::class));
+        $app->add($container->get(LanguageMiddleware::class));
+
+        // Register routes
+        (require __DIR__ . '/routes.php')($app);
+        // Error handling
+        if ($container->get('debug')) {
+            $app->add($container->get(Whoops::class));
+        } else {
+            $app->addErrorMiddleware(false, true, false);
+        }
+        return $app;
+    },
+    'ConsoleSlimApp' => function (Container $container) {
+        // Initialize slim application
+        $app = Bridge::create($container);
+        $app->addBodyParsingMiddleware();
+        $app->addRoutingMiddleware();
+        $app->add($container->get(TrailingSlash::class));
+        // Register routes
+        (require __DIR__ . '/routes.php')($app);
+        return $app;
+    },
+    Application::class => function (Container $container) {
+        $app = new Application();
+        $app->addCommands([
+            $container->get(ImageCacheBuildCommand::class),
+            $container->get(ImageCacheClearCommand::class),
+        ]);
+        return $app;
+    },
+    ImageCacheBuildCommand::class => DI\autowire(ImageCacheBuildCommand::class)
+        ->constructorParameter('apiKey', DI\get('apiKey'))
+        ->constructorParameter('slimApp', DI\get('ConsoleSlimApp')),
+    ImageCacheClearCommand::class => DI\autowire(ImageCacheClearCommand::class)
+        ->constructorParameter('apiKey', DI\get('apiKey'))
+        ->constructorParameter('slimApp', DI\get('ConsoleSlimApp')),
+    ApiKeyAuthMiddleware::class => DI\autowire(ApiKeyAuthMiddleware::class)
+        ->constructorParameter('apiKey', DI\get('apiKey')),
     Whoops::class => DI\autowire(Whoops::class),
     TrailingSlash::class => DI\autowire(TrailingSlash::class),
     TwigMiddleware::class => DI\autowire(TwigMiddleware::class),
